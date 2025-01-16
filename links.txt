@@ -1,0 +1,7 @@
+https://devnithw.medium.com/building-a-music-player-gui-application-with-python-7c3b03f812fc
+https://www.youtube.com/watch?v=u_xNvC9PpHA
+https://www.youtube.com/watch?v=rGOWG7aug58
+https://www.youtube.com/watch?v=e9CRZEi_feA
+https://thepythoncode.com/article/make-a-gui-voice-recorder-python
+https://www.geeksforgeeks.org/build-a-voice-recorder-gui-using-python/
+https://github.com/arunvishwa03/VOICE-RECORDER
