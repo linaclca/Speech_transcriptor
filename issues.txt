@@ -1,0 +1,24 @@
+- - - KGMK - - -
+
+TODO:
+
+- GUI/Interface
+	- record button: hold (max length = 1min)
+	- melody instrument choice: guitar, synth, tremolo marimba
+	- drums = pre defined samples (kick, snare hihat, cymbal)
+	- (nice to have) save/send .MIDI
+	- graphical sheet display (Python generated)
+	- play button
+	- (stop button)
+	- sleep for processing between record and play
+
+- merge .MIDIs: two instruments in one sheet
+- Readme
+	- what it does
+	- usage
+	- references: librosa, praat as parselmouth, prettymidi
+
+- LINA:	midi to audio
+- LUCA:	midi to sheet (merging to partiture)
+
+CheckOut: UDIO
