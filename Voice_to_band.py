@@ -6,11 +6,12 @@ import soundfile as sf
 from scipy.signal import find_peaks
 
 ### Parameters ###
-AUDIO_PATH = 'input/based-on-true-events-north-american-voice-david-h-m-lambert-1-00-01.mp3'
+AUDIO_PATH = 'input/A0101B.wav'
 SR = 22050  # Standard sampling rate
 HOP_LENGTH = 512
 FRAME_LENGTH = 2048
-OUTPUT_PATH_MELODY = 'output/output_voice to melody.mid'
+OUTPUT_PATH_MELODY = 'output/output_voice_to_melody.mid'
+OUTPUT_PATH_DRUM = 'output/speech_to_drums.mid'
 
 ### Voice to drums ###
 
@@ -94,7 +95,7 @@ def create_midi(events, output_file):
     print(f"MIDI file saved as {output_file}")
 
 # Export detected events to MIDI
-create_midi(events, "./output/speech_to_drums.mid") # drop into DAW
+create_midi(events, OUTPUT_PATH_DRUM) # drop into DAW
 
 # Display results
 print("Detected drum events:")
@@ -123,7 +124,7 @@ previous_freq = None
 melody = []
 
 for freq in pitch_values:
-    print(previous_freq)
+    #print(previous_freq)
     if freq > 0:
         frequency.append(freq)
         i = i + 1     
