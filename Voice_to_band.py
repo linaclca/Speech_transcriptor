@@ -45,7 +45,7 @@ for onset_frame in onset_frames:
     if pitch_value < 200 and centroid < 500:
         drum_type = 'Kick'  # Low pitch and low centroid
     elif pitch_value < 500 and centroid < 2000:
-        drum_type = 'Snare'  # Mid pitch and centroid
+        drum_type = 'Snare'  # Midi pitch and centroid
     elif centroid > 2000 and bandwidth > 1500:
         drum_type = 'Hi-Hat'  # High centroid and bandwidth
     else:
