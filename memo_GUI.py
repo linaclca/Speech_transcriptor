@@ -34,7 +34,7 @@ class VoiceRecorder:
     else:
       self.recording = True
       self.button.config(fg="red")
-      threading.Thread(target=self.record())
+      threading.Thread(target=self.record).start()
 
   def record(self):
     audio = pyaudio.PyAudio()
