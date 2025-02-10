@@ -13,6 +13,9 @@ import parselmouth
 # from urllib.parse import quote
 import soundfile as sf
 from scipy.signal import find_peaks
+import multiprocessing
+import fluidsynth
+from mido import MidiFile
 
 ### Simple Recorder UI/Widget
 #
@@ -25,24 +28,48 @@ class VoiceRecorder:
     self.root = tk.Tk()
     self.root.resizable(False, False)
 
-    self.button = tk.Button(self.root, text="Record", font=("Arial", 120, "bold"), command=self.click_handler)
-    self.button.pack()
+    self.btnRecord = tk.Button(self.root, text="Record", font=("Arial", 120, "bold"), command=self.click_handler)
+    self.btnRecord.pack()
     self.label = tk.Label(text="00:00:00", font=("Arial", 20))
     self.label.pack()
 
     self.recording = False
     self.frames = []
 
+    self.btnPlay = tk.Button(self.root, text="Play", font=("Arial", 80, "bold"), command=self.click_handler_play)
+    self.btnPlay.pack()
+
+    self.playing = False
+
+    # Initialize FluidSynth
+    self.synth = fluidsynth.Synth()
+    self.synth.start(driver="coreaudio")  # Use the appropriate driver for your OS
+
+    # Load SoundFonts
+    self.sfid_drums = self.synth.sfload("sf2/PNS_Drum_Kit.sf2")  # Path to your drum SoundFont
+    self.sfid_melody = self.synth.sfload("sf2/module90.sf2")  # Path to your melody SoundFont
+    self.synth.program_select(0, self.sfid_drums, 0, 0)  # Channel 0, Bank 0, Preset 0
+    self.synth.program_select(1, self.sfid_melody, 0, 0)  # Channel 1, Bank 0, Preset 0
+
     self.root.mainloop()
 
   def click_handler(self):
     if self.recording:
       self.recording = False
-      self.button.config(fg="black")
+      self.btnRecord.config(fg="black")
     else:
       self.recording = True
-      self.button.config(fg="red")
+      self.btnRecord.config(fg="red")
       threading.Thread(target=self.record).start()
+
+  def click_handler_play(self):
+    if self.playing:
+      self.playing = False
+      self.btnPlay.config(fg="black")
+    else: 
+      self.playing = True
+      self.btnPlay.config(fg="green")
+      threading.Thread(target=self.play_midi_files).start()
 
   def record(self):
     audio = pyaudio.PyAudio()
@@ -243,4 +270,39 @@ class VoiceRecorder:
     os.rename('input/recording.wav', output_path)
     print(f"Input buffer saved to {output_path}")
 
+  def play_midi_files(self):
+    midi1_path = 'output/speech_to_drums.mid'
+    midi2_path = 'output/output_voice_to_melody.mid'
+
+    # Create threads for each MIDI file
+    thread1 = threading.Thread(target=play_midi_wrapper, args=(self.synth, midi1_path, 0))
+    thread2 = threading.Thread(target=play_midi_wrapper, args=(self.synth, midi2_path, 1))
+
+    # Start threads
+    thread1.start()
+    thread2.start()
+
+    # Wait for threads to finish
+    thread1.join()
+    thread2.join()
+
+
+def play_midi(synth, midi_file, channel):
+    start_time = time.time()
+    for msg in midi_file:
+        if not msg.is_meta:
+            msg = msg.copy(channel=channel)
+            current_time = time.time() - start_time
+            if msg.type == 'note_on':
+                synth.noteon(channel, msg.note, msg.velocity)
+            elif msg.type == 'note_off':
+                synth.noteoff(channel, msg.note)
+            time.sleep(max(0, msg.time - (time.time() - start_time - current_time)))
+
+def play_midi_wrapper(synth, midi_file_path, channel):
+    midi_file = MidiFile(midi_file_path)
+    play_midi(synth, midi_file, channel)
+
+
+    
 VoiceRecorder()
