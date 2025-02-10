@@ -6,6 +6,7 @@ import pyaudio
 import time
 import threading
 import tkinter as tk
+from tkinter import ttk
 import librosa
 import numpy as np
 import pretty_midi
@@ -13,7 +14,6 @@ import parselmouth
 # from urllib.parse import quote
 import soundfile as sf
 from scipy.signal import find_peaks
-import multiprocessing
 import fluidsynth
 from mido import MidiFile
 
@@ -36,10 +36,49 @@ class VoiceRecorder:
     self.recording = False
     self.frames = []
 
-    self.btnPlay = tk.Button(self.root, text="Play", font=("Arial", 80, "bold"), command=self.click_handler_play)
-    self.btnPlay.pack()
+    # Dropdown menu for instruments
+    instruments = ['piano', 'guitar', 'strings', 'choir', 'synth']
+    self.dropdown_Var = tk.StringVar()
+    self.dropdown_Var.set(instruments[0])  # Set default value
+    self.instrument_Label = tk.Label(text="Select an instrument")
+    self.instrument_Label.pack(anchor=tk.W, pady=10)
+    self.dropdownInstrument = tk.OptionMenu(self.root, self.dropdown_Var, *instruments)
+    self.dropdownInstrument.pack(anchor=tk.W, pady=10)
 
+    self.btnPlay = tk.Button(self.root, text="Play", font=("Arial", 80, "bold"), command=self.click_handler_play)
+    self.btnPlay.pack(anchor=tk.W, padx=10)
+  
     self.playing = False
+
+    self.dropdown_Var.trace('w', self.loadInstrument)
+
+    self.root.mainloop()
+
+  def loadInstrument(self, *args):
+    self.instrument = self.dropdown_Var.get()  # Get the selected instrument
+    print(f"Selected instrument: {self.instrument}")  # Debug print
+
+    # Instrument sf
+    if self.instrument == "piano":
+        SOUNDFONT_PATH_MELODY = "sf2/Yamaha-Grand-Lite-v2.0.sf2"  # Piano SoundFont
+        bank = 0
+        preset = 1
+    elif self.instrument == "guitar":
+        SOUNDFONT_PATH_MELODY = "sf2/module90.sf2"
+        bank = 0
+        preset = 22
+    elif self.instrument == "strings":
+        SOUNDFONT_PATH_MELODY = "sf2/module90.sf2"
+        bank = 0
+        preset = 38
+    elif self.instrument == "choir":
+        SOUNDFONT_PATH_MELODY = "sf2/KBH-Real-Choir-V2.5.sf2"
+        bank = 0
+        preset = 1
+    elif self.instrument == "synth":
+        SOUNDFONT_PATH_MELODY = "sf2/module90.sf2"
+        bank = 0
+        preset = 0
 
     # Initialize FluidSynth
     self.synth = fluidsynth.Synth()
@@ -47,11 +86,10 @@ class VoiceRecorder:
 
     # Load SoundFonts
     self.sfid_drums = self.synth.sfload("sf2/PNS_Drum_Kit.sf2")  # Path to your drum SoundFont
-    self.sfid_melody = self.synth.sfload("sf2/module90.sf2")  # Path to your melody SoundFont
+    self.sfid_melody = self.synth.sfload(SOUNDFONT_PATH_MELODY)  # Path to your melody SoundFont
     self.synth.program_select(0, self.sfid_drums, 0, 0)  # Channel 0, Bank 0, Preset 0
-    self.synth.program_select(1, self.sfid_melody, 0, 0)  # Channel 1, Bank 0, Preset 0
+    self.synth.program_select(1, self.sfid_melody, bank, preset)  # Channel 1, Bank, Preset 0
 
-    self.root.mainloop()
 
   def click_handler(self):
     if self.recording:
@@ -273,6 +311,7 @@ class VoiceRecorder:
   def play_midi_files(self):
     midi1_path = 'output/speech_to_drums.mid'
     midi2_path = 'output/output_voice_to_melody.mid'
+    print(self.instrument)
 
     # Create threads for each MIDI file
     thread1 = threading.Thread(target=play_midi_wrapper, args=(self.synth, midi1_path, 0))
