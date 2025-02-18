@@ -87,14 +87,14 @@ class VoiceRecorder:
     self.frames = []
 
     # Dropdown menu for instruments
-    instruments = ['piano', 'guitar', 'strings', 'choir', 'synth']
+    instruments = ['none selected', 'piano', 'guitar', 'strings', 'choir', 'synth']
     self.dropdown_Var = tk.StringVar()
     self.dropdown_Var.set(instruments[0])  # Set default value
     self.instrument = instruments[0]  # Initialize the instrument attribute
     self.instrument_Label = tk.Label(text="Select an instrument")
-    self.instrument_Label.pack(anchor=tk.W, pady=10)
+    self.instrument_Label.pack(anchor=tk.W, padx=10)
     self.dropdownInstrument = tk.OptionMenu(self.root, self.dropdown_Var, *instruments)
-    self.dropdownInstrument.pack(anchor=tk.W, pady=10)
+    self.dropdownInstrument.pack(anchor=tk.W, padx=10)
 
     self.btnPlay = tk.Button(self.root, text="Play", font=("Arial", 80, "bold"), command=self.click_handler_play)
     self.btnPlay.pack(anchor=tk.W, padx=10)
